@@ -127,9 +127,6 @@ module.exports = (robot) => {
               console.log(a)
               }
           );
-          res.send({
-            path: path
-          },massage);
         });//ファイル保存
       });
     });
