@@ -67,74 +67,70 @@ module.exports = (robot) => {
     res.download(file, (path) => {
       let ext = file.name.slice(-4);
       Jimp.read(path).then((image) => {
-        image.grayscale((err, image) => {
-          let newFileName = Math.random().toString(32).substring(2) + ext;
+        let newFileName = Math.random().toString(32).substring(2) + ext;
+        
+        image.write('images/' + newFileName, (err, image) => {
+          let path = 'images/' + newFileName
+          const imageBytes = fs.readFileSync(path, { encoding: "base64" });
+          stub.PostModelOutputs(
+            {
+              // This is the model ID of a publicly available General model. You may use any other public or custom model ID.
+              model_id: "reportbot",
+              inputs: [{ data: { image: { base64: imageBytes } } }]
+            },
+            metadata,
+            (err, response) => {
+              if (err) {
+                console.log("Error: " + err);
+                return;
+              }
           
-          image.write('images/' + newFileName, (err, image) => {
-            let path = 'images/' + newFileName
-            const imageBytes = fs.readFileSync(path, { encoding: "base64" });
-            stub.PostModelOutputs(
-              {
-                // This is the model ID of a publicly available General model. You may use any other public or custom model ID.
-                model_id: "bicycle-motorcycles-model",
-                inputs: [{ data: { image: { base64: imageBytes } } }]
-              },
-              metadata,
-              (err, response) => {
-                if (err) {
-                  console.log("Error: " + err);
-                  return;
-                }
-            
-                if (response.status.code !== 10000) {
-                  console.log("Received failed status: " + response.status.description + "\n" + response.status.details + "\n" + response.status.code);
-                  return;
-                }
-            
-                console.log("Predicted concepts, with confidence values:")
-                let motar =  response.outputs[0].data.concepts[0].value
-                let bicycle  =  response.outputs[0].data.concepts[1].value
-                console.log(response.outputs[0].data.concepts[0].value)
-                for (const c of response.outputs[0].data.concepts) {
-                  console.log(c.name + ": " + c.value);
-                }
-                if (motar > bicycle){
-                  massage = "motorcycle"
-                }else{
-                  massage = "bicycle"
-                }
-                // res.send(massage)
-                console.log(massage)
-                prams = {
-                  spreadsheetId: '18VHHOpXrdMD25979_8T7VUD1PNxjhcVILE3zBbuStN4',
-                  range: 'A1',
-                  valueInputOption: 'USER_ENTERED',
-                  insertDataOption: 'INSERT_ROWS',
-                  resource: {
-                      values: [
-                        [path,massage],
-                      ],
-                  },
-                };
-                a = sheets.spreadsheets.values.append(prams, (err, data) => {
-                    if (err) {
-                      console.log(err)
-                      res.send("書き込めませんでした");
-                    }
-                    else {
-                      res.send("書き込めました",massage);
-                    }
-                  });
-                console.log(a)
-                }
-            );
-            res.send({
-              path: path
-            },massage);
-          });//ファイル保存
-
-
-        });
+              if (response.status.code !== 10000) {
+                console.log("Received failed status: " + response.status.description + "\n" + response.status.details + "\n" + response.status.code);
+                return;
+              }
+          
+              console.log("Predicted concepts, with confidence values:")
+              let motar =  response.outputs[0].data.concepts[0].value
+              let bicycle  =  response.outputs[0].data.concepts[1].value
+              console.log(response.outputs[0].data.concepts[0].value)
+              let values = []
+              let keys = []
+              for (const c of response.outputs[0].data.concepts) {
+                values.push(c.value)
+                keys.push(c.name)
+                console.log(c.name + ": " + c.value);
+              }
+              maxin = values.indexOf(Math.max.apply(null,values));
+              massage = keys[maxin]
+              console.log(massage)
+              prams = {
+                spreadsheetId: '18VHHOpXrdMD25979_8T7VUD1PNxjhcVILE3zBbuStN4',
+                range: 'A1',
+                valueInputOption: 'USER_ENTERED',
+                insertDataOption: 'INSERT_ROWS',
+                resource: {
+                    values: [
+                      [path,massage],
+                    ],
+                },
+              };
+              a = sheets.spreadsheets.values.append(prams, (err, data) => {
+                  if (err) {
+                    console.log(err)
+                    res.send("書き込めませんでした");
+                  }
+                  else {
+                    res.send("書き込めました",massage);
+                  }
+                });
+              console.log(a)
+              }
+          );
+          res.send({
+            path: path
+          },massage);
+        });//ファイル保存
       });
     });
   };
