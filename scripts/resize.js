@@ -1,7 +1,3 @@
-// Description:
-//   Messing around with the today API.
-// Commands:
-//   hubot today  - Return today at random.
 
 
 const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
