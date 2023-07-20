@@ -1,3 +1,7 @@
+// Description:
+//   Messing around with the today API.
+// Commands:
+//   hubot today  - Return today at random.
 
 
 const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
@@ -123,6 +127,9 @@ module.exports = (robot) => {
               console.log(a)
               }
           );
+          // res.send({
+          //   path: path
+          // },massage);
         });//ファイル保存
       });
     });
