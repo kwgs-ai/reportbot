@@ -1,9 +1,3 @@
-// Description:
-//   Messing around with the today API.
-// Commands:
-//   hubot today  - Return today at random.
-
-
 const { ClarifaiStub, grpc } = require("clarifai-nodejs-grpc");
 const fs = require("fs");
 
@@ -103,7 +97,6 @@ module.exports = (robot) => {
               }
               maxin = values.indexOf(Math.max.apply(null,values));
               massage = keys[maxin]
-              console.log(massage)
               prams = {
                 spreadsheetId: '18VHHOpXrdMD25979_8T7VUD1PNxjhcVILE3zBbuStN4',
                 range: 'A1',
@@ -124,12 +117,8 @@ module.exports = (robot) => {
                     res.send("書き込めました",massage);
                   }
                 });
-              console.log(a)
               }
           );
-          // res.send({
-          //   path: path
-          // },massage);
         });//ファイル保存
       });
     });
